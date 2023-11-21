@@ -1,34 +1,40 @@
 import sys
+from UI import Ui_MainWindow
+from random import randint
+from PyQt5.QtGui import QColor, QPainter
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import uic
 
-from PyQt5 import uic  # Импортируем uic
-from PyQt5.QtWidgets import QApplication, QMainWindow
 
-
-class MyWidget(QMainWindow):
+class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('calc.ui', self)  # Загружаем дизайн
-        # цифры
-        for i in self.buttonGroup_digits.buttons():
-            i.clicked.connect(self.add_char)
-        # (+,-,*,/)
-        for i in self.buttonGroup_binary.buttons():
-            i.clicked.connect(self.calc)
-        # последнее число или последнее вычисленое выражение
-        self.data = ""
-        # выражение которое нужно подсчиать
-        self.data_eval = ""
 
-    def add_char(self):
-        self.data += self.sender().text()
+        uic.loadUi("UI.ui", self)
+        self.do_paint = False
+        self.pushButton.clicked.connect(self.create)
 
+    def paintEvent(self, event):
+        if self.do_paint:
+            qp = QPainter()
+            qp.begin(self)
+            self.draw(qp)
+            qp.end()
 
-    def calc(self):
-        self.data_eval = f"{self.data} {self.sender().text() }"
+    def draw(self, qp):
+        qp.setBrush(QColor(255, 255, 0))
+        r = randint(0, 250)
+        qp.drawEllipse(randint(0, 399 - r), randint(0, 561 - r), r, r)
+        self.do_paint = False
+
+    def create(self):
+        self.do_paint = True
+        self.repaint()
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyWidget()
     ex.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
